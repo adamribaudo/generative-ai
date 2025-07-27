@@ -8,6 +8,9 @@ class GeminiLiveResponseMessage {
 
         if (data?.setupComplete) {
             this.type = "SETUP COMPLETE";
+        } else if (data?.toolCall) {
+            this.type = "TOOL CALL";
+            console.log("THIS IS A TOOL CALL: ", this.data);
         } else if (parts?.length && parts[0].text) {
             this.data = parts[0].text;
             this.type = "TEXT";
@@ -34,6 +37,7 @@ class GeminiLiveAPI {
 
         this.onReceiveResponse = (message) => {
             console.log("Default message received callback", message);
+            //TODO handle tool call here
         };
 
         this.onConnectionStarted = () => {
@@ -117,6 +121,16 @@ class GeminiLiveAPI {
                 model: this.modelUri,
                 generation_config: {
                     response_modalities: this.responseModalities,
+                },
+                tools: {
+                    function_declarations: {
+                        name: "get_civ_details",
+                        description: "When provided with a an Age of Empires civilization, this tool returns details about that civilization such as its bonuses and unique technologies. The list of valid civlizations that can be entered as function arguments is as follows: Armenians,Aztecs,Bengalis,Berbers,Bohemians,Britons,Bulgarians,Burgundians,Burmese,Byzantines,Celts,Chinese,Cumans,Dravidians,Ethiopians,Franks,Georgians,Goths,Gurjaras,Hindustanis,Huns,Inca,Indians,Italians,Japanese,Jurchens,Khitans,Khmer,Koreans,Lithuanians,Magyars,Malay,Malians,Maya,Mongols,Persians,Poles,Portuguese,Romans,Saracens,Shu,Sicilians,Slavs,Spanish,Tatars,Teutons,Turks,Vietnamese,Vikings,Wei,Wu",
+                        parameters: {
+                            "type": "OBJECT",
+                            "properties": { "civilization": { "type": "STRING" } },
+                        }
+                    }
                 },
                 system_instruction: {
                     parts: [{ text: this.systemInstructions }],
