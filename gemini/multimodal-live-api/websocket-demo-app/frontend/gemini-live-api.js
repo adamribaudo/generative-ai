@@ -8,6 +8,9 @@ class GeminiLiveResponseMessage {
 
         if (data?.setupComplete) {
             this.type = "SETUP COMPLETE";
+        } else if (data?.toolCall) {
+            this.type = "TOOL CALL";
+            this.data = data.toolCall.functionCalls[0];
         } else if (parts?.length && parts[0].text) {
             this.data = parts[0].text;
             this.type = "TEXT";
@@ -26,7 +29,7 @@ class GeminiLiveAPI {
         this.model = model;
         this.modelUri = `projects/${this.projectId}/locations/us-central1/publishers/google/models/${this.model}`;
 
-        this.responseModalities = ["AUDIO"];
+        this.responseModalities = ["AUDIO,TEXT"];
         this.systemInstructions = "";
 
         this.apiHost = apiHost;
@@ -74,10 +77,10 @@ class GeminiLiveAPI {
     }
 
     onReceiveMessage(messageEvent) {
-        console.log("Message received: ", messageEvent);
+        //console.log("Message received: ", messageEvent);
         const messageData = JSON.parse(messageEvent.data);
         const message = new GeminiLiveResponseMessage(messageData);
-        console.log("onReceiveMessageCallBack this ", this);
+        //console.log("onReceiveMessageCallBack this ", this);
         this.onReceiveResponse(message);
     }
 
@@ -118,6 +121,16 @@ class GeminiLiveAPI {
                 generation_config: {
                     response_modalities: this.responseModalities,
                 },
+                tools: {
+                    function_declarations: {
+                        name: "get_civ_details",
+                        description: "When provided with a an Age of Empires civilization, this tool returns details about that civilization such as its bonuses and unique technologies. The list of valid civlizations that can be entered as function arguments is as follows: Armenians,Aztecs,Bengalis,Berbers,Bohemians,Britons,Bulgarians,Burgundians,Burmese,Byzantines,Celts,Chinese,Cumans,Dravidians,Ethiopians,Franks,Georgians,Goths,Gurjaras,Hindustanis,Huns,Inca,Indians,Italians,Japanese,Jurchens,Khitans,Khmer,Koreans,Lithuanians,Magyars,Malay,Malians,Maya,Mongols,Persians,Poles,Portuguese,Romans,Saracens,Shu,Sicilians,Slavs,Spanish,Tatars,Teutons,Turks,Vietnamese,Vikings,Wei,Wu",
+                        parameters: {
+                            "type": "OBJECT",
+                            "properties": { "civilization": { "type": "STRING" } },
+                        }
+                    }
+                },
                 system_instruction: {
                     parts: [{ text: this.systemInstructions }],
                 },
@@ -139,6 +152,20 @@ class GeminiLiveAPI {
             },
         };
         this.sendMessage(textMessage);
+    }
+
+    sendFunctionResponse(data) {
+        const functionResponse = {
+            tool_response: {
+                function_responses: [
+                    {
+                        name: "get_civ_details", //Hard coded given that there is only 1 tool
+                        response: {output: data},
+                    }
+                ]
+            },
+        };
+        this.sendMessage(functionResponse);
     }
 
     sendRealtimeInputMessage(data, mime_type) {

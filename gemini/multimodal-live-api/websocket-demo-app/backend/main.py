@@ -8,7 +8,7 @@ from websockets.legacy.server import WebSocketServerProtocol
 HOST = "us-central1-aiplatform.googleapis.com"
 SERVICE_URL = f"wss://{HOST}/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent"
 
-DEBUG = False
+DEBUG = True
 
 
 async def proxy_task(

@@ -5,8 +5,8 @@ window.addEventListener("load", (event) => {
     setAvailableMicrophoneOptions();
 });
 
-const PROXY_URL = "wss://[THE_URL_YOU_COPIED_WITHOUT_HTTP]";
-const PROJECT_ID = "your project id";
+const PROXY_URL = "ws://localhost:8080";
+const PROJECT_ID = "animated-axe-466813-m0";
 const MODEL = "gemini-2.0-flash-live-preview-04-09";
 const API_HOST = "us-central1-aiplatform.googleapis.com";
 
@@ -79,8 +79,13 @@ geminiLiveApi.onReceiveResponse = (messageResponse) => {
     if (messageResponse.type == "AUDIO") {
         liveAudioOutputManager.playAudioChunk(messageResponse.data);
     } else if (messageResponse.type == "TEXT") {
-        console.log("Gemini said: ", messageResponse.data);
+        console.log("Gemini said over TEXT: ", messageResponse.data);
         newModelMessage(messageResponse.data);
+    } else if (messageResponse.type === "TOOL CALL") {
+        console.log("Tool call received: ", messageResponse.data);
+        toolResult = get_civ_details(messageResponse.data.args.civilization);
+        console.log("Tool call results:" + toolResult);
+        geminiLiveApi.sendFunctionResponse(toolResult);
     }
 };
 
