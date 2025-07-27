@@ -119,7 +119,7 @@ class LiveAudioInputManager {
         source.connect(this.processor);
         this.processor.connect(this.audioContext.destination);
 
-        this.interval = setInterval(this.recordChunk.bind(this), 1000);
+        this.interval = setInterval(this.recordChunk.bind(this), 3000); //Set audio interval to 3 seconds
     }
 
     newAudioRecording(b64AudioData) {
@@ -258,7 +258,7 @@ class LiveScreenManager {
         } catch (err) {
             console.error("Error accessing the webcam: ", err);
         }
-        setInterval(this.newFrame.bind(this), 1000);
+        setInterval(this.newFrame.bind(this), 3000); // interval of 3 seconds
     }
 
     stopCapture() {

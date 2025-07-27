@@ -51,7 +51,7 @@ async def create_proxy(
     }
 
     async with websockets.connect(
-        SERVICE_URL, additional_headers=headers
+        SERVICE_URL, additional_headers=headers, max_size=None
     ) as server_websocket:
         client_to_server_task = asyncio.create_task(
             proxy_task(client_websocket, server_websocket)
@@ -89,7 +89,7 @@ async def main() -> None:
     """
     Starts the WebSocket server and listens for incoming client connections.
     """
-    async with websockets.serve(handle_client, "localhost", 8080):
+    async with websockets.serve(handle_client, "localhost", 8080, max_size = None):
         print("Running websocket server localhost:8080...")
         # Run forever
         await asyncio.Future()

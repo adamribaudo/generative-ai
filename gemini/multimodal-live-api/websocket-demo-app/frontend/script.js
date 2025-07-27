@@ -77,6 +77,7 @@ const liveAudioOutputManager = new LiveAudioOutputManager();
 
 geminiLiveApi.onReceiveResponse = (messageResponse) => {
     if (messageResponse.type == "AUDIO") {
+        console.log("Playing audio chunk");
         liveAudioOutputManager.playAudioChunk(messageResponse.data);
     } else if (messageResponse.type == "TEXT") {
         console.log("Gemini said over TEXT: ", messageResponse.data);

@@ -77,11 +77,14 @@ class GeminiLiveAPI {
     }
 
     onReceiveMessage(messageEvent) {
-        //console.log("Message received: ", messageEvent);
-        const messageData = JSON.parse(messageEvent.data);
-        const message = new GeminiLiveResponseMessage(messageData);
-        //console.log("onReceiveMessageCallBack this ", this);
-        this.onReceiveResponse(message);
+        try {
+            console.log("Message received: ", messageEvent);
+            const messageData = JSON.parse(messageEvent.data);
+            const message = new GeminiLiveResponseMessage(messageData);
+            this.onReceiveResponse(message);
+        } catch (e) {
+            console.error("Error in onReceiveMessage:", e);
+        }
     }
 
     setupWebSocketToService() {
@@ -192,3 +195,4 @@ class GeminiLiveAPI {
 }
 
 console.log("loaded gemini-live-api.js");
+
